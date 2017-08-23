@@ -1,102 +1,52 @@
 package com.stargazerproject.download.impl;
 
-import java.util.concurrent.TimeUnit;
-
 import com.stargazerproject.download.ProgressCalculate;
 import com.stargazerproject.download.ProgressDisplay;
 
 public class ProgressDisplayImpl implements ProgressDisplay{
 	
-	private Integer point = 0;
-	private Integer[] progress = new Integer[100];
+	private int[] progress = new int[100];
+	private ProgressCalculate progressCalculate;
 	
-	public ProgressDisplayImpl() {
-//		for (Integer p : progress) {
-//			System.out.println("a");
-//			p = 0;
-//		}
-		
-		for(int i=0;i<100;i++){
-			progress[i] = 0;
-		}
-		
+	public ProgressDisplayImpl(ProgressCalculate progressCalculateArg) {
+		progressCalculate = progressCalculateArg;
+		initProgress();
 	}
 	
-	@Override
-	public void standardProgressDisplay(ProgressCalculate progressCalculate){
-		while(true){
-			int schedule = progressCalculate.ProgressPercentage();
-			if((schedule - point) > 0){
-				increaseProgress(schedule);
-				point = schedule;
-			}
-			
-			if(schedule == 100){
-				break;
-			}
-			
-			displayConvert();
-			
-			try {
-				TimeUnit.SECONDS.sleep(1);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-		
+	private void progressDisplayCalculate(){
+		increaseProgress(progressCalculate.progress().get());
 	}
 	
-	public void increaseProgress(int schedule){
-		for(int i = point; i<schedule; i++){
+	private void increaseProgress(int schedule){
+		for(int i = 0; i<schedule; i++){
 			progress[i] = 1;
 		}
 	}
 	
+	public void initProgress(){
+		for(int i=0; i<progress.length; i++){
+			progress[i] = 0;
+		}
+	}
 	
-	public StringBuffer displayConvert(){
+	
+	public StringBuffer standardDisplayConvert(){
 		StringBuffer progressDispkay = new StringBuffer();
+		int percent = 0;
+		progressDisplayCalculate();
 		progressDispkay.append("[");
-		
-		for (Integer p : progress) {
+		for (int p : progress) {
 			if(p == 0){
-				progressDispkay.append("-");
+				progressDispkay.append(".");
 			}
 			else{
 				progressDispkay.append("█");
+				++percent;
 			}
 		}
 		
 		progressDispkay.append("][ ");
-		progressDispkay.append(point + "% ]");
+		progressDispkay.append(percent + "% ]");
 		return progressDispkay;
-	}
-	
-	public static void main(String[] args) {
-		
-		ProgressDisplayImpl p = new ProgressDisplayImpl();
-		
-		for(int i=1;i<101;i++){
-				int schedule = i;
-				if((schedule - p.point) > 0){
-					if((schedule - p.point) >= 1)
-					{
-						p.increaseProgress(schedule);
-						p.point = schedule;
-					}
-				}
-				
-				System.out.println(p.displayConvert());
-				
-				if(schedule == 100){
-					break;
-				}
-				
-				try {
-					TimeUnit.MICROSECONDS.sleep(100000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-		}
-	}
-	
+	}	
 }
