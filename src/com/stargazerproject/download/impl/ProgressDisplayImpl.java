@@ -23,7 +23,7 @@ public class ProgressDisplayImpl implements ProgressDisplay{
 		}
 	}
 	
-	public void initProgress(){
+	private void initProgress(){
 		for(int i=0; i<progress.length; i++){
 			progress[i] = 0;
 		}
